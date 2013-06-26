@@ -6,6 +6,7 @@ var SPF = 1 / FPS;
 var FLEET_SPEED = 100;
 
 var PLAYER_COLORS = [
+    ["#CCCCCC", "#666666"],
     ["#CCFF00", "#99BF00"],
     ["#00CCFF", "#0099BF"],
     ["#FF00CC", "#BF0099"],
@@ -61,17 +62,35 @@ function makePlanetLocs(ctx, planets) {
     }
 }
 
+function drawTriangle(ctx, x, y, r, theta) {
+    var A = Math.PI * 2 / 3;
+    var x1 = x + 1.5 * r * Math.cos(theta),
+        y1 = y + 1.5 * r * Math.sin(theta),
+        x2 = x + r * Math.cos(theta + A),
+        y2 = y + r * Math.sin(theta + A),
+        x3 = x + r * Math.cos(theta - A),
+        y3 = y + r * Math.sin(theta - A);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.lineTo(x1, y1);
+    ctx.closePath();
+}
+
 function drawPlanet(ctx, planet) {
     var p = planetLocs[planet.id];
+    var r = 10 + planet.growth * 5;
     ctx.beginPath();
-    ctx.arc(p.x + 0.5, p.y + 0.5, planet.growth * 20, 0, Math.PI * 2, false);
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2, false);
     ctx.closePath();
-    ctx.fillStyle = PLAYER_COLORS[planet.owner][1];
+    ctx.fillStyle = PLAYER_COLORS[planet.owner][0];
     ctx.fill();
     ctx.lineWidth = 4;
-    ctx.strokeStyle = PLAYER_COLORS[planet.owner][0];
+    ctx.strokeStyle = PLAYER_COLORS[planet.owner][1];
     ctx.stroke();
-    ctx.font = "36px sans-serif";
+    var fontSize = 12 + planet.growth * 4;
+    ctx.font = fontSize + "px Helvetica";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
@@ -86,19 +105,17 @@ function drawFleet(ctx, fleet) {
     var theta = Math.atan2(destination.y - source.y, destination.x - source.x);
     var x = source.x + Math.cos(theta) * traveled;
     var y = source.y + Math.sin(theta) * traveled;
-    var r = fleet.ships * 0.75;
-    ctx.beginPath();
-    ctx.arc(x + 0.5, y + 0.5, r, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fillStyle = PLAYER_COLORS[fleet.owner][0];
+    var r = 25;
+    drawTriangle(ctx, x, y, r, theta);
+    ctx.fillStyle = "#000000";
     ctx.fill();
-    //ctx.lineWidth = 4;
-    //ctx.strokeStyle = PLAYER_COLORS[planet.owner][0];
-    //ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = PLAYER_COLORS[fleet.owner][0];
+    ctx.stroke();
     ctx.font = "14px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(fleet.ships, x, y);
 }
 
