@@ -66,9 +66,9 @@ class Fleet:
     def freeze(self):
         return ImmutableFleet(
                 self.owner,
+                self.ships,
                 self.source.id,
                 self.destination.id,
-                self.ships,
                 self.total_turns,
                 self.remaining_turns)
 

@@ -52,7 +52,7 @@ class PlanetWars:
             # Update views
             planets, fleets = self.freeze()
             for view in self.views:
-                view(planets, fleets)
+                view.update(planets, fleets)
 
     def do_turn(self):
         """Performs a single turn of the game."""
