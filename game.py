@@ -1,32 +1,47 @@
 import time
-from collections import defaultdict, namedtuple
-from math import ceil
-from threading import Event, Thread
 
-from planetwars.io import load_map
-from planetwars.utils import dist, partition
+from planetwars.utils import partition
 from planetwars import Fleet, Planet
 
-FRAMES_PER_SECOND = 30
-TURNS_PER_SECOND = 100
-
-SECONDS_PER_TURN = 1.0 / TURNS_PER_SECOND
-#FRAMES_PER_TURN = ceil(FRAMES_PER_SECOND / TURNS_PER_SECOND)
-#SECONDS_PER_FRAME = SECONDS_PER_TURN / FRAMES_PER_TURN
+def load_map(map_file):
+    planets = []
+    fleets = []
+    with open(map_file) as f:
+        for line in f:
+            line = line[:line.find("#")]
+            tokens = line.split()
+            if not tokens:
+                continue
+            elif tokens[0] == "P":
+                x = float(tokens[1])
+                y = float(tokens[2])
+                owner = int(tokens[3])
+                ships = int(tokens[4])
+                growth = int(tokens[5])
+                planets.append(Planet(len(planets), x, y, owner, ships, growth))
+            elif tokens[0] == "F":
+                owner = int(tokens[1])
+                ships = int(tokens[2])
+                source = int(tokens[3])
+                destination = int(tokens[4])
+                total_turns = int(tokens[5])
+                remaining_turns = int(tokens[6])
+                fleets.append(Fleet(owner, ships, source, destination,
+                                    total_turns, remaining_turns))
+    return planets, fleets
 
 def neutral_player(pid, planets, fleets):
     return []
 
 class PlanetWars:
 
-    def __init__(self, players, map_name):
+    def __init__(self, players, map_name, turns_per_second=2):
         if len(players) < 2:
             raise Exception("A game requires at least two players.")
         self.players = [neutral_player] + players
         self.planets, self.fleets = load_map("maps/" + map_name + ".txt")
         self.views = []
-        #self.frame_renderer = Thread(target=self.frame_thread)
-        #self.frame_renderer.start()
+        self.turn_duration = 1.0 / turns_per_second
 
     def add_view(self, view):
         self.views.append(view)
@@ -38,7 +53,7 @@ class PlanetWars:
 
     def play(self):
         winner = -1
-        next_turn = time.time() + SECONDS_PER_TURN
+        next_turn = time.time() + self.turn_duration
         while winner < 0:
             # Do the turn
             self.do_turn()
@@ -48,7 +63,7 @@ class PlanetWars:
             now = time.time()
             if now < next_turn:
                 time.sleep(next_turn - now)
-            next_turn += SECONDS_PER_TURN
+            next_turn += self.turn_duration
             # Update views
             planets, fleets = self.freeze()
             for view in self.views:
@@ -74,7 +89,6 @@ class PlanetWars:
 
         # Arrival
         arrived_fleets, self.fleets = partition(lambda fleet: fleet.has_arrived(), self.fleets)
-        #print("# arrived: %d, # left: %d" % (len(arrived_fleets), len(self.fleets)))
         for planet in self.planets:
             planet.battle([fleet for fleet in arrived_fleets if fleet.destination == planet])
 
