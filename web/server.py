@@ -40,8 +40,6 @@ class GamesNamespace(BaseNamespace):
                    name=event,
                    args=args,
                    endpoint="/game")
-
-        print("emitting to %d" % len(self.games[game].sockets))
         for ns in self.games[game].sockets.itervalues():
             ns.socket.send_packet(pkt)
 
@@ -54,7 +52,6 @@ class WebsocketView:
         print("game added")
 
     def update(self, planets, fleets):
-        print fleets[0]
         GamesNamespace.emit_to_game(self.game, 'update', json.dumps({
             'planets': [planet._asdict() for planet in planets],
             'fleets': [fleet._asdict() for fleet in fleets],

@@ -80,17 +80,17 @@ function drawTriangle(ctx, x, y, r, theta) {
 
 function drawPlanet(ctx, planet) {
     var p = planetLocs[planet.id];
-    var r = 10 + planet.growth * 5;
+    var r = 14 + planet.growth * 4;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fillStyle = PLAYER_COLORS[planet.owner][0];
     ctx.fill();
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 2;
     ctx.strokeStyle = PLAYER_COLORS[planet.owner][1];
     ctx.stroke();
-    var fontSize = 12 + planet.growth * 4;
-    ctx.font = fontSize + "px Helvetica";
+    var fontSize = 14 + planet.growth * 3;
+    ctx.font = fontSize + "px Calibri";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
@@ -105,18 +105,22 @@ function drawFleet(ctx, fleet) {
     var theta = Math.atan2(destination.y - source.y, destination.x - source.x);
     var x = source.x + Math.cos(theta) * traveled;
     var y = source.y + Math.sin(theta) * traveled;
-    var r = 25;
+    var r = 10 + fleet.ships * 0.25;
+    if (r > 30) r = 30;
     drawTriangle(ctx, x, y, r, theta);
     ctx.fillStyle = "#000000";
     ctx.fill();
     ctx.lineWidth = 2;
     ctx.strokeStyle = PLAYER_COLORS[fleet.owner][0];
     ctx.stroke();
-    ctx.font = "14px sans-serif";
+    var fontSize = 8 + fleet.ships * 0.1;
+    ctx.font = fontSize + "px Calibri";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillText(fleet.ships, x, y);
+    var fx = x + 0.1 * r * Math.cos(theta),
+        fy = y + 0.1 * r * Math.sin(theta);
+    ctx.fillText(fleet.ships, fx, fy);
 }
 
 $(function() {
