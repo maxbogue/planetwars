@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from planetwars import PlanetWars
-from planetwars.ai import random_ai
+from planetwars.ai import *
 from planetwars.utils import partition
 
 class TextView():
@@ -45,8 +45,14 @@ class TextView():
             self.print_planet(planet, fleets)
         self.old_planets = planets
 
+    def game_over(self, winner):
+        if winner > 0:
+            print("Player %d wins!" % winner)
+        else:
+            print("Tie!")
+
 def main():
-    game = PlanetWars([random_ai, random_ai], "map1")
+    game = PlanetWars([random_ai, random_ai], "map1", 100)
     game.add_view(TextView())
     game.play()
 

@@ -11,7 +11,7 @@ from threading import Thread
 from werkzeug.serving import run_with_reloader
 
 from planetwars import PlanetWars
-from planetwars.ai import random_ai
+from planetwars.ai import ai_dict
 
 app = Flask(__name__)
 monkey.patch_all()
@@ -20,17 +20,14 @@ games = {}
 
 class GamesNamespace(BaseNamespace):
 
-    sockets = {}
     games = {}
 
     def on_join(self, game):
-        GamesNamespace.sockets[id(self)] = game
-        GamesNamespace.games[game].sockets[id(self)] = self
+        self.game = game
+        GamesNamespace.games[self.game].sockets[id(self)] = self
 
     def disconnect(self, *args, **kwargs):
-        print("Got a socket disconnection")
-        if id(self) in self.sockets:
-            game = GamesNamespace.sockets.pop(id(self))
+        if hasattr(self, "game") and self.game in GamesNamespace.games:
             del GamesNamespace.games[game].sockets[id(self)]
         super(GamesNamespace, self).disconnect(*args, **kwargs)
 
@@ -57,22 +54,32 @@ class WebsocketView:
             'fleets': [fleet._asdict() for fleet in fleets],
         }))
 
+    def game_over(self, winner):
+        del GamesNamespace.games[self.game]
+        if self.game in games:
+            del games[self.game]
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', ai_names=sorted(ai_dict.keys()))
 
 @app.route('/game/<path:game_id>')
 def game(game_id):
     if game_id in games:
         return render_template('game.html')
     else:
-        abort(404)
+        return redirect('/')
 
 @app.route('/create-game', methods=['POST'])
 def create_game():
+    print(request.form)
     game_id = "".join(choice(string.lowercase) for _ in range(5))
     print("Creating game: %s" % game_id)
-    games[game_id] = PlanetWars([random_ai, random_ai], "map1")
+    print(request.form["p1"])
+    print(request.form["p2"])
+    p1 = ai_dict[request.form["p1"]]
+    p2 = ai_dict[request.form["p2"]]
+    games[game_id] = PlanetWars([p1, p2], "map1")
     games[game_id].add_view(WebsocketView(game_id))
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)

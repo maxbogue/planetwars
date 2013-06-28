@@ -68,6 +68,8 @@ class PlanetWars:
             planets, fleets = self.freeze()
             for view in self.views:
                 view.update(planets, fleets)
+        for view in self.views:
+            view.game_over(winner)
 
     def do_turn(self):
         """Performs a single turn of the game."""
@@ -95,7 +97,7 @@ class PlanetWars:
     def issue_order(self, player, order):
         if order.source.owner != player:
             raise Exception("Cheating!")
-        ships = min(order.ships, order.source.ships)
+        ships = int(min(order.ships, order.source.ships))
         if ships > 0:
             source = self.planets[order.source.id]
             destination = self.planets[order.destination.id]

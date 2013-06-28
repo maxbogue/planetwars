@@ -15,7 +15,18 @@
 </head>
 <body>
     <p>Index!</p>
+    {{ ai_names }}
     <form action="/create-game" method="POST">
+        <p><select name="p1">
+        {% for ai_name in ai_names %}
+            <option>{{ ai_name }}</option>
+        {% endfor %}
+        </select></p>
+        <p><select name="p2">
+        {% for ai_name in ai_names %}
+            <option>{{ ai_name }}</option>
+        {% endfor %}
+        </select></p>
         <input type="submit" value="Create Game">
     </form>
 </body>
