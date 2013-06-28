@@ -101,9 +101,9 @@ class PlanetWars:
     def issue_order(self, player, order):
         if order.source.owner != player:
             raise Exception("Cheating!")
-        ships = int(min(order.ships, order.source.ships))
+        source = self.planets[order.source.id]
+        ships = int(min(order.ships, source.ships))
         if ships > 0:
-            source = self.planets[order.source.id]
             destination = self.planets[order.destination.id]
             source.ships -= ships
             self.fleets.append(Fleet(player, ships, source, destination))
