@@ -28,7 +28,7 @@ class GamesNamespace(BaseNamespace):
 
     def disconnect(self, *args, **kwargs):
         if hasattr(self, "game") and self.game in GamesNamespace.games:
-            del GamesNamespace.games[game].sockets[id(self)]
+            del GamesNamespace.games[self.game].sockets[id(self)]
         super(GamesNamespace, self).disconnect(*args, **kwargs)
 
     @classmethod
