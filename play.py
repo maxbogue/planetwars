@@ -52,7 +52,10 @@ class TextView():
             print("Tie!")
 
 def main():
-    game = PlanetWars([random_ai, random_ai], "map1", 100)
+    import sys
+    p1 = ai_dict[sys.argv[1]]
+    p2 = ai_dict[sys.argv[2]]
+    game = PlanetWars([p1, p2], "map1", 100)
     game.add_view(TextView())
     game.play()
 
