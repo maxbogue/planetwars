@@ -30,7 +30,7 @@ def load_map(map_file):
                                     total_turns, remaining_turns))
     return planets, fleets
 
-def neutral_player(pid, planets, fleets):
+def neutral_player(turn, pid, planets, fleets):
     return []
 
 class PlanetWars:
@@ -42,6 +42,7 @@ class PlanetWars:
         self.planets, self.fleets = load_map("maps/" + map_name + ".txt")
         self.views = []
         self.turn_duration = 1.0 / turns_per_second
+        self.turn = 0
 
     def add_view(self, view):
         self.views.append(view)
@@ -68,6 +69,8 @@ class PlanetWars:
             planets, fleets = self.freeze()
             for view in self.views:
                 view.update(planets, fleets)
+            if self.turn > 200:
+                winner = 0
         for view in self.views:
             view.game_over(winner)
 
@@ -76,7 +79,8 @@ class PlanetWars:
 
         # Get orders
         planets, fleets = self.freeze()
-        player_orders = [player(i, planets, fleets) for i, player in enumerate(self.players)]
+        player_orders = [player(self.turn, i, planets, fleets) for i, player in enumerate(self.players)]
+        self.turn += 1
 
         # Departure
         for player, orders in enumerate(player_orders):

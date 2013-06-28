@@ -13,14 +13,14 @@ def planetwars_ai(f):
 from planetwars.ai.max_ai import *
 
 @planetwars_ai
-def strong_to_weak(pid, planets, fleets):
+def strong_to_weak(turn, pid, planets, fleets):
     my_planets, their_planets, _ = aggro_partition(pid, planets)
     my_strongest = max(my_planets, key=get_ships)
     their_weakest = min(their_planets, key=get_ships)
     return [Order(my_strongest, their_weakest, my_strongest.ships * 0.75)]
 
 @planetwars_ai
-def all_to_weak(pid, planets, fleets):
+def all_to_weak(turn, pid, planets, fleets):
     my_planets, their_planets, _ = aggro_partition(pid, planets)
     destination = min(their_planets, key=get_ships)
     orders = []
@@ -29,7 +29,7 @@ def all_to_weak(pid, planets, fleets):
     return orders
 
 @planetwars_ai
-def all_to_close_or_weak(pid, planets, fleets):
+def all_to_close_or_weak(turn, pid, planets, fleets):
     my_planets, their_planets, neutral_planets = aggro_partition(pid, planets)
     their_weakest = min(their_planets, key=get_ships)
     my_total = sum(map(get_ships, my_planets))
@@ -46,7 +46,7 @@ def all_to_close_or_weak(pid, planets, fleets):
     return orders
 
 @planetwars_ai
-def random_ai(pid, planets, fleets):
+def random_ai(turn, pid, planets, fleets):
     def mine(x):
         return x.owner == pid
     my_planets, other_planets = partition(mine, planets)
