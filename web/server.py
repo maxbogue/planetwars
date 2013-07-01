@@ -72,14 +72,12 @@ def game(game_id):
 
 @app.route('/create-game', methods=['POST'])
 def create_game():
-    print(request.form)
     game_id = "".join(choice(string.lowercase) for _ in range(5))
-    print("Creating game: %s" % game_id)
-    print(request.form["p1"])
-    print(request.form["p2"])
     p1 = ai_dict[request.form["p1"]]
     p2 = ai_dict[request.form["p2"]]
-    games[game_id] = PlanetWars([p1, p2], "map1")
+    m = request.form.get("map", "map1")
+    turns_per_second = int(request.form.get("tps", 2))
+    games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
     games[game_id].add_view(WebsocketView(game_id))
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)
