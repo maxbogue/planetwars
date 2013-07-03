@@ -71,6 +71,8 @@ class RealtimeView:
             sleep_duration = next_frame_time - time.time()
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
+        for view in self.wrapped_views:
+            view.game_over(self.winner)
 
     def next_frame(self):
         for planet in self.planets:
@@ -123,9 +125,13 @@ def create_game():
     p1 = ai_dict[request.form["p1"]]
     p2 = ai_dict[request.form["p2"]]
     m = request.form.get("map", "map1")
-    turns_per_second = int(request.form.get("tps", 2))
+    turns_per_second = float(request.form.get("tps", 2))
+    smoothing_enabled = request.form.get("render") == "smooth"
     games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
-    games[game_id].add_view(RealtimeView(30.0, turns_per_second, WebsocketView(game_id)))
+    view = WebsocketView(game_id)
+    if smoothing_enabled:
+        view = RealtimeView(30.0, turns_per_second, view)
+    games[game_id].add_view(view)
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)
 
