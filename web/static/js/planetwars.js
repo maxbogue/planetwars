@@ -58,6 +58,8 @@ function makePlanetLocs(ctx, planets) {
         planetLocs.push({
             "x": x,
             "y": y,
+            "growth": p.growth,
+            "radius": 14 + p.growth * 4,
         });
     }
 }
@@ -80,9 +82,8 @@ function drawTriangle(ctx, x, y, r, theta) {
 
 function drawPlanet(ctx, planet) {
     var p = planetLocs[planet.id];
-    var r = 14 + planet.growth * 4;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, r, 0, Math.PI * 2, false);
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fillStyle = PLAYER_COLORS[planet.owner][0];
     ctx.fill();
@@ -100,8 +101,8 @@ function drawPlanet(ctx, planet) {
 function drawFleet(ctx, fleet) {
     var source = planetLocs[fleet.source];
     var destination = planetLocs[fleet.destination];
-    var d = dist(source, destination);
-    var traveled = d * (1.0 - fleet.remaining_turns / fleet.total_turns);
+    var d = dist(source, destination) - source.radius - destination.radius;
+    var traveled = source.radius + d * (1 - (fleet.remaining_turns) / (fleet.total_turns - 1));
     var theta = Math.atan2(destination.y - source.y, destination.x - source.x);
     var x = source.x + Math.cos(theta) * traveled;
     var y = source.y + Math.sin(theta) * traveled;
