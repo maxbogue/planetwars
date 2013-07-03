@@ -24,7 +24,7 @@ class Planet:
                 self.x,
                 self.y,
                 self.owner,
-                self.ships,
+                int(self.ships),
                 self.growth)
 
     def generate_ships(self):
@@ -67,8 +67,8 @@ class Fleet:
         return ImmutableFleet(
                 self.owner,
                 self.ships,
-                self.source.id,
-                self.destination.id,
+                self.source.id if isinstance(self.source, Planet) else self.source,
+                self.destination.id if isinstance(self.destination, Planet) else self.destination,
                 self.total_turns,
                 self.remaining_turns)
 

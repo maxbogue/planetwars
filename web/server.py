@@ -1,5 +1,6 @@
 import json
 import string
+import time
 from collections import defaultdict
 from flask import abort, Flask, redirect, render_template, Response, request
 from gevent import monkey
@@ -7,10 +8,10 @@ from random import choice
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
 from socketio.server import SocketIOServer
-from threading import Thread
+from threading import Lock, Thread
 from werkzeug.serving import run_with_reloader
 
-from planetwars import PlanetWars
+from planetwars import PlanetWars, Planet, Fleet
 from planetwars.ai import ai_dict
 
 app = Flask(__name__)
@@ -40,13 +41,59 @@ class GamesNamespace(BaseNamespace):
         for ns in self.games[game].sockets.itervalues():
             ns.socket.send_packet(pkt)
 
+class RealtimeView:
+    
+    def __init__(self, frames_per_second, turns_per_second, *wrapped_views):
+        self.seconds_per_frame = 1.0 / frames_per_second
+        self.turns_per_frame = turns_per_second / frames_per_second
+        self.wrapped_views = wrapped_views
+        self.planets = []
+        self.fleets = []
+        self.lock = Lock()
+        self.winner = -1
+        self.thread = Thread(target=self.run)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def run(self):
+        next_frame_time = time.time()
+        while True:
+            with self.lock:
+                if self.planets:
+                    planets = tuple(planet.freeze() for planet in self.planets)
+                    fleets = tuple(fleet.freeze() for fleet in self.fleets)
+                    for view in self.wrapped_views:
+                        view.update(planets, fleets)
+                    self.next_frame()
+            if self.winner >= 0:
+                break
+            next_frame_time += self.seconds_per_frame
+            sleep_duration = next_frame_time - time.time()
+            if sleep_duration > 0:
+                time.sleep(sleep_duration)
+
+    def next_frame(self):
+        for planet in self.planets:
+            if planet.owner > 0:
+                planet.ships += planet.growth * self.turns_per_frame
+        for fleet in self.fleets:
+            fleet.remaining_turns -= self.turns_per_frame
+        self.fleets = [fleet for fleet in self.fleets if fleet.remaining_turns >= 0]
+
+    def update(self, planets, fleets):
+        with self.lock:
+            self.planets = [Planet(*planet) for planet in planets]
+            self.fleets = [Fleet(*fleet) for fleet in fleets]
+
+    def game_over(self, winner):
+        self.winner = winner
+
 class WebsocketView:
 
     def __init__(self, game):
         self.game = game
         self.sockets = {}
         GamesNamespace.games[game] = self
-        print("game added")
 
     def update(self, planets, fleets):
         GamesNamespace.emit_to_game(self.game, 'update', json.dumps({
@@ -78,7 +125,7 @@ def create_game():
     m = request.form.get("map", "map1")
     turns_per_second = int(request.form.get("tps", 2))
     games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
-    games[game_id].add_view(WebsocketView(game_id))
+    games[game_id].add_view(RealtimeView(30.0, turns_per_second, WebsocketView(game_id)))
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)
 
