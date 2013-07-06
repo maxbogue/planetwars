@@ -100,7 +100,7 @@ class PlanetWars:
 
     def issue_order(self, player, order):
         if order.source.owner != player:
-            raise Exception("Cheating!")
+            raise Exception("Player %d issued an order from enemy planet %d." % (player, order.source.id))
         source = self.planets[order.source.id]
         ships = int(min(order.ships, source.ships))
         if ships > 0:

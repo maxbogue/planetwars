@@ -1,8 +1,8 @@
 from math import ceil
 
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 
-from planetwars.utils import dist
+from planetwars.utils import battle, turn_dist
 
 ImmutablePlanet = namedtuple("ImmutablePlanet", "id, x, y, owner, ships, growth")
 ImmutableFleet = namedtuple("ImmutableFleet", "owner, ships, source, destination, total_turns, remaining_turns")
@@ -32,19 +32,7 @@ class Planet:
             self.ships += self.growth
 
     def battle(self, fleets):
-        ship_counter = defaultdict(int)
-        ship_counter[self.owner] += self.ships
-        for fleet in fleets:
-            ship_counter[fleet.owner] += fleet.ships
-        forces = sorted(ship_counter.items(), key=lambda p: p[1], reverse=True)
-        if len(forces) == 1:
-            self.ships = forces[0][1]
-        else:
-            #print(forces)
-            self.ships = forces[0][1] - forces[1][1]
-            if self.ships > 0:
-                # There was actually a change of owner.
-                self.owner = forces[0][0]
+        self.owner, self.ships = battle(self, fleets)
 
 class Fleet:
 
@@ -55,7 +43,7 @@ class Fleet:
         self.source = source
         self.destination = destination
         if total_turns is None:
-            self.total_turns = ceil(dist(source, destination))
+            self.total_turns = turn_dist(source, destination)
         else:
             self.total_turns = total_turns
         if remaining_turns is None:

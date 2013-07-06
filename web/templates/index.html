@@ -57,7 +57,7 @@
                 <td><label for="player1">Player 1:</label></td>
                 <td>
                     <select name="p1" id="player1">{% for ai_name in ai_names %}
-                        <option{% if ai_name == "random_ai" %} selected{% endif %}>{{ ai_name }}</option>{% endfor %}
+                        <option{% if ai_name == "Random" %} selected{% endif %}>{{ ai_name }}</option>{% endfor %}
                     </select>
                 </td>
             </tr>
@@ -65,7 +65,7 @@
                 <td><label for="player2">Player 2:</label></td>
                 <td>
                     <select name="p2" id="player2">{% for ai_name in ai_names %}
-                        <option{% if ai_name == "random_ai" %} selected{% endif %}>{{ ai_name }}</option>{% endfor %}
+                        <option{% if ai_name == "Random" %} selected{% endif %}>{{ ai_name }}</option>{% endfor %}
                     </select>
                 </td>
             </tr>
