@@ -91,7 +91,7 @@ function drawPlanet(ctx, planet) {
     ctx.strokeStyle = PLAYER_COLORS[planet.owner][1];
     ctx.stroke();
     var fontSize = 14 + planet.growth * 3;
-    ctx.font = fontSize + "px Calibri";
+    ctx.font = fontSize + "px Helvetica";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
@@ -115,7 +115,7 @@ function drawFleet(ctx, fleet) {
     ctx.strokeStyle = PLAYER_COLORS[fleet.owner][0];
     ctx.stroke();
     var fontSize = 8 + fleet.ships * 0.1;
-    ctx.font = fontSize + "px Calibri";
+    ctx.font = fontSize + "px Helvetica";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFFFFF";
