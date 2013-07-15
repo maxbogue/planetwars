@@ -39,6 +39,14 @@ def aggro_partition(player_id, planets):
             theirs.append(planet)
     return mine, theirs, neutral
 
+def count_ships(planets, fleets):
+    ship_counter = defaultdict(int)
+    for planet in planets:
+        ship_counter[planet.owner] += planet.ships
+    for fleet in fleets:
+        ship_counter[fleet.owner] += fleet.ships
+    return sorted(ship_counter.items(), key=lambda p: p[1], reverse=True)
+
 def battle(planet, fleets):
     """Calculates the result of the given fleets battling at the given planet.
 
@@ -53,11 +61,7 @@ def battle(planet, fleets):
         new_owner, new_ships
 
     """
-    ship_counter = defaultdict(int)
-    ship_counter[planet.owner] += planet.ships
-    for fleet in fleets:
-        ship_counter[fleet.owner] += fleet.ships
-    forces = sorted(ship_counter.items(), key=lambda p: p[1], reverse=True)
+    forces = count_ships([planet], fleets)
     if len(forces) == 1:
         return forces[0]
     else:

@@ -1,6 +1,7 @@
 import time
+from collections import defaultdict
 
-from planetwars.utils import partition
+from planetwars.utils import count_ships, partition
 from planetwars import Fleet, Planet
 
 def load_map(map_file):
@@ -53,26 +54,25 @@ class PlanetWars:
         return planets, fleets
 
     def play(self):
-        winner = -1
         next_turn = time.time() + self.turn_duration
-        while winner < 0:
+        while True:
             # Do the turn
             self.do_turn()
-            # Check for winner
-            winner = self.check_endgame()
+            # Update views
+            planets, fleets = self.freeze()
+            for view in self.views:
+                view.update(planets, fleets)
+            # Check for end game.
+            winner, ship_counts = self.gameover()
+            if winner >= 0:
+                break
             # Wait until time has passed
             now = time.time()
             if now < next_turn:
                 time.sleep(next_turn - now)
             next_turn += self.turn_duration
-            # Update views
-            planets, fleets = self.freeze()
-            for view in self.views:
-                view.update(planets, fleets)
-            if self.turn > 200:
-                winner = 0
         for view in self.views:
-            view.game_over(winner)
+            view.game_over(winner, ship_counts)
 
     def do_turn(self):
         """Performs a single turn of the game."""
@@ -108,21 +108,21 @@ class PlanetWars:
             source.ships -= ships
             self.fleets.append(Fleet(player, ships, source, destination))
 
-    def check_endgame(self):
-        players = range(len(self.players))[1:]
-        living, dead = partition(self.is_alive, players)
-        if not living:
-            return 0
-        elif len(living) == 1:
-            return living[0]
+    def gameover(self):
+        players = range(1, len(self.players))
+        living = filter(self.is_alive, players)
+        if len(living) == 1:
+            return living[0], count_ships(self.planets, self.fleets)
+        elif self.turn >= 200:
+            ship_counts = count_ships(self.planets, self.fleets)
+            ship_counts = [(p, s) for p, s in ship_counts if p > 0]
+            winner = 0 if ship_counts[0][1] == ship_counts[1][1] else ship_counts[0][0]
+            return winner, ship_counts
         else:
-            return -1
+            return -1, []
 
     def is_alive(self, player):
         for planet in self.planets:
             if planet.owner == player:
                 return True
-        #for fleet in self.fleets:
-            #if fleet.owner == player:
-                #return True
         return False

@@ -72,7 +72,7 @@ class RealtimeView:
             if sleep_duration > 0:
                 time.sleep(sleep_duration)
         for view in self.wrapped_views:
-            view.game_over(self.winner)
+            view.game_over(self.winner, self.ship_counts)
 
     def next_frame(self):
         for planet in self.planets:
@@ -87,8 +87,9 @@ class RealtimeView:
             self.planets = [Planet(*planet) for planet in planets]
             self.fleets = [Fleet(*fleet) for fleet in fleets]
 
-    def game_over(self, winner):
+    def game_over(self, winner, ship_counts):
         self.winner = winner
+        self.ship_counts = ship_counts
 
 class WebsocketView:
 
@@ -103,7 +104,7 @@ class WebsocketView:
             'fleets': [fleet._asdict() for fleet in fleets],
         }))
 
-    def game_over(self, winner):
+    def game_over(self, winner, ship_counts):
         del GamesNamespace.games[self.game]
         if self.game in games:
             del games[self.game]
