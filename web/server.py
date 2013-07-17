@@ -1,18 +1,18 @@
 import json
 import string
 import time
-from collections import defaultdict
 from flask import abort, Flask, redirect, render_template, Response, request
 from gevent import monkey
 from random import choice
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
 from socketio.server import SocketIOServer
-from threading import Lock, Thread
+from threading import Thread
 from werkzeug.serving import run_with_reloader
 
-from planetwars import PlanetWars, Planet, Fleet
+from planetwars import PlanetWars
 from planetwars.ai import ai_dict
+from planetwars.views import RealtimeView
 
 app = Flask(__name__)
 monkey.patch_all()
@@ -40,56 +40,6 @@ class GamesNamespace(BaseNamespace):
                    endpoint="/game")
         for ns in self.games[game].sockets.itervalues():
             ns.socket.send_packet(pkt)
-
-class RealtimeView:
-    
-    def __init__(self, frames_per_second, turns_per_second, *wrapped_views):
-        self.seconds_per_frame = 1.0 / frames_per_second
-        self.turns_per_frame = turns_per_second / frames_per_second
-        self.wrapped_views = wrapped_views
-        self.planets = []
-        self.fleets = []
-        self.lock = Lock()
-        self.winner = -1
-        self.thread = Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
-
-    def run(self):
-        next_frame_time = time.time()
-        while True:
-            with self.lock:
-                if self.planets:
-                    planets = tuple(planet.freeze() for planet in self.planets)
-                    fleets = tuple(fleet.freeze() for fleet in self.fleets)
-                    for view in self.wrapped_views:
-                        view.update(planets, fleets)
-                    self.next_frame()
-            if self.winner >= 0:
-                break
-            next_frame_time += self.seconds_per_frame
-            sleep_duration = next_frame_time - time.time()
-            if sleep_duration > 0:
-                time.sleep(sleep_duration)
-        for view in self.wrapped_views:
-            view.game_over(self.winner, self.ship_counts)
-
-    def next_frame(self):
-        for planet in self.planets:
-            if planet.owner > 0:
-                planet.ships += planet.growth * self.turns_per_frame
-        for fleet in self.fleets:
-            fleet.remaining_turns -= self.turns_per_frame
-        self.fleets = [fleet for fleet in self.fleets if fleet.remaining_turns >= 0]
-
-    def update(self, planets, fleets):
-        with self.lock:
-            self.planets = [Planet(*planet) for planet in planets]
-            self.fleets = [Fleet(*fleet) for fleet in fleets]
-
-    def game_over(self, winner, ship_counts):
-        self.winner = winner
-        self.ship_counts = ship_counts
 
 class WebsocketView:
 
