@@ -110,7 +110,7 @@ class PlanetWars:
 
     def gameover(self):
         players = range(1, len(self.players))
-        living = filter(self.is_alive, players)
+        living = list(filter(self.is_alive, players))
         if len(living) == 1:
             return living[0], count_ships(self.planets, self.fleets)
         elif self.turn >= 200:

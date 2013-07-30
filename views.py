@@ -27,7 +27,7 @@ class TextView():
         by_remaining = defaultdict(list)
         for fleet in fleets:
             by_remaining[fleet.remaining_turns].append(fleet)
-        for r in sorted(by_remaining.iterkeys()):
+        for r in sorted(by_remaining.keys()):
             friends, enemies = partition(mine, by_remaining[r])
             friends_sum = sum(fleet.ships for fleet in friends)
             enemies_sum = sum(fleet.ships for fleet in enemies)
