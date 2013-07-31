@@ -12,6 +12,7 @@ from werkzeug.serving import run_with_reloader
 
 from planetwars import PlanetWars
 from planetwars.ai import ai_dict
+from planetwars.utils import better_sort_key
 from planetwars.views import RealtimeView
 
 app = Flask(__name__)
@@ -61,7 +62,7 @@ class WebsocketView:
 
 @app.route('/')
 def index():
-    return render_template('index.html', ai_names=sorted(ai_dict.keys()))
+    return render_template('index.html', ai_names=sorted(ai_dict.keys(), key=better_sort_key))
 
 @app.route('/game/<path:game_id>')
 def game(game_id):
