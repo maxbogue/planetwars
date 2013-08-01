@@ -71,37 +71,3 @@ def battle(planet, fleets):
             # There was actually a change of owner.
             owner = forces[0][0]
         return owner, ships
-
-roman_numerals = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V':5, 'I': 1}
-
-def is_roman_numeral(s):
-    for c in s:
-        if c not in roman_numerals:
-            return False
-    return True
-
-def roman_to_int(s):
-    s = s.upper()
-    if not is_roman_numeral(s):
-        raise ValueError("Input is not a valid roman numeral: %s" % s)
-    n = 0
-    for i, c in enumerate(s):
-        v = roman_numerals[c]
-        if i < len(s) - 1 and roman_numerals[s[i + 1]] > v:
-            n -= v
-        else:
-            n += v
-    return n
-
-def better_sort_key(s):
-    tokens = s.split()
-    new_tokens = []
-    for token in tokens:
-        try:
-            new_tokens.append("%09d" % int(token))
-        except ValueError:
-            try:
-                new_tokens.append("%09d" % roman_to_int(token))
-            except ValueError:
-                new_tokens.append(token)
-    return " ".join(new_tokens)

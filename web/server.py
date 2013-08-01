@@ -12,7 +12,7 @@ from werkzeug.serving import run_with_reloader
 
 from planetwars import PlanetWars
 from planetwars.ai import ai_dict
-from planetwars.utils import better_sort_key
+from planetwars.internal import better_sort_key
 from planetwars.views import RealtimeView
 
 app = Flask(__name__)
