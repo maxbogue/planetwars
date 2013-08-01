@@ -45,29 +45,40 @@ def all_maps():
             maps[map_name] = load_map(map_path)
     return maps
 
-roman_numerals = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V':5, 'I': 1}
+DIGITS = set("0123456789")
+ROMAN_NUMERALS = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V': 5, 'I': 1}
+
+def is_digit(s):
+    if len(s) == 0:
+        return False
+    for c in s:
+        if c not in DIGITS:
+            return False
+    return True
 
 def is_roman_numeral(s):
+    if len(s) == 0:
+        return False
     for c in s.upper():
-        if c not in roman_numerals:
+        if c not in ROMAN_NUMERALS:
             return False
     return True
 
 def roman_to_int(s):
     s = s.upper()
     if not is_roman_numeral(s):
-        raise ValueError("Input is not a valid roman numeral: %s" % s)
+        raise ValueError("Input is not a valid roman numeral: \"%s\"" % s)
     n = 0
     for i, c in enumerate(s):
-        v = roman_numerals[c]
-        if i < len(s) - 1 and roman_numerals[s[i + 1]] > v:
+        v = ROMAN_NUMERALS[c]
+        if i < len(s) - 1 and ROMAN_NUMERALS[s[i + 1]] > v:
             n -= v
         else:
             n += v
     return n
 
 def maybe_to_int(s):
-    if s.isdigit():
+    if is_digit(s):
         return int(s)
     elif is_roman_numeral(s):
         return roman_to_int(s)
