@@ -12,11 +12,27 @@
             border: 5px solid #000000;
         }
     </style>
-    <script src="/static/js/jquery-2.0.2.min.js"></script>
     <script src="/static/js/socket.io.js"></script>
     <script src="/static/js/planetwars.js"></script>
+    <script>
+        function main() {
+            var gameID = "{{ gameID }}";
+            var socket = io.connect("/game");
+            var canvas = document.getElementById("game");
+            var ctx = canvas.getContext("2d");
+            socket.emit("join", gameID);
+            socket.on("update", function(msg) {
+                var data = JSON.parse(msg);
+                var planets = data[0];
+                var fleets = data[1];
+                if (!planetLocs) makePlanetLocs(ctx, planets);
+                drawGame(ctx, planets, fleets);
+            });
+        }
+    </script>
 </head>
 <body>
     <canvas id=game width="800" height="800" />
+    <script>main()</script>
 </body>
 </html>

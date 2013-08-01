@@ -50,10 +50,8 @@ class WebsocketView:
         GamesNamespace.games[game] = self
 
     def update(self, planets, fleets):
-        GamesNamespace.emit_to_game(self.game, 'update', json.dumps({
-            'planets': [planet._asdict() for planet in planets],
-            'fleets': [fleet._asdict() for fleet in fleets],
-        }))
+        asdicts = [p._asdict() for p in planets], [f._asdict() for f in fleets]
+        GamesNamespace.emit_to_game(self.game, 'update', json.dumps(asdicts))
 
     def game_over(self, winner, ship_counts):
         del GamesNamespace.games[self.game]
@@ -67,7 +65,7 @@ def index():
 @app.route('/game/<path:game_id>')
 def game(game_id):
     if game_id in games:
-        return render_template('game.html')
+        return render_template('game.html', gameID=game_id)
     else:
         return redirect('/')
 

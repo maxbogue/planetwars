@@ -36,10 +36,6 @@ function makePlanetLocs(ctx, planets) {
         if (p.y < top) top = p.y;
         if (p.y > bottom) bottom = p.y;
     }
-    console.log(top);
-    console.log(left);
-    console.log(right);
-    console.log(bottom);
     var xRange = right - left,
         yRange = bottom - top,
         paddingFactor = 0.1;
@@ -49,7 +45,6 @@ function makePlanetLocs(ctx, planets) {
     bottom += yRange * paddingFactor;
     var width = ctx.canvas.width;
     var height = width * yRange / xRange;
-    console.log("new canvas height: " + height);
     ctx.canvas.height = height;
     for (var i = 0; i < planets.length; i++) {
         var p = planets[i];
@@ -124,23 +119,12 @@ function drawFleet(ctx, fleet) {
     ctx.fillText(fleet.ships, fx, fy);
 }
 
-$(function() {
-    var gameID = document.URL.slice(document.URL.lastIndexOf("/") + 1);
-    var socket = io.connect("/game");
-    var canvas = document.getElementById("game");
-    var ctx = canvas.getContext("2d");
-    socket.emit("join", gameID);
-    socket.on("update", function(msg) {
-        var data = JSON.parse(msg);
-        //console.log(data);
-        if (!planetLocs) makePlanetLocs(ctx, data.planets);
-        //console.log(planetLocs);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var i = 0; i < data.planets.length; i++) {
-            drawPlanet(ctx, data.planets[i]);
-        }
-        for (var i = 0; i < data.fleets.length; i++) {
-            drawFleet(ctx, data.fleets[i]);
-        }
-    });
-});
+function drawGame(ctx, planets, fleets) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    for (var i = 0; i < planets.length; i++) {
+        drawPlanet(ctx, planets[i]);
+    }
+    for (var i = 0; i < fleets.length; i++) {
+        drawFleet(ctx, fleets[i]);
+    }
+}
