@@ -1,6 +1,7 @@
 """Utility functions that are used for things besides game logic."""
 
 import os.path
+import re
 from collections import OrderedDict
 
 import planetwars
@@ -47,7 +48,7 @@ def all_maps():
 roman_numerals = {'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V':5, 'I': 1}
 
 def is_roman_numeral(s):
-    for c in s:
+    for c in s.upper():
         if c not in roman_numerals:
             return False
     return True
@@ -65,15 +66,13 @@ def roman_to_int(s):
             n += v
     return n
 
-def better_sort_key(s):
-    tokens = s.split()
-    new_tokens = []
-    for token in tokens:
-        try:
-            new_tokens.append("%09d" % int(token))
-        except ValueError:
-            try:
-                new_tokens.append("%09d" % roman_to_int(token))
-            except ValueError:
-                new_tokens.append(token)
-    return " ".join(new_tokens)
+def maybe_to_int(s):
+    if s.isdigit():
+        return int(s)
+    elif is_roman_numeral(s):
+        return roman_to_int(s)
+    else:
+        return s
+
+def natural_key(s):
+    return [maybe_to_int(t) for t in re.split("(\d+|\s+)", s)]
