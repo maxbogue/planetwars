@@ -72,7 +72,8 @@
             <tr>
                 <td><label for="map">Map:</label></td>
                 <td>
-                    <select name="map" id="map">{% for map_name in map_names %}
+                    <select name="map" id="map">
+                        <option>Random</option>{% for map_name in map_names %}
                         <option>{{ map_name }}</option>{% endfor %}
                     </select>
                 </td>

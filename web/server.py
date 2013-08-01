@@ -1,4 +1,5 @@
 import json
+import random
 import string
 import time
 from flask import abort, Flask, redirect, render_template, Response, request
@@ -76,7 +77,9 @@ def create_game():
     game_id = "".join(choice(string.lowercase) for _ in range(5))
     p1 = ai_dict[request.form["p1"]]
     p2 = ai_dict[request.form["p2"]]
-    m = request.form.get("map", "map1")
+    m = request.form.get("map", "Random")
+    if m == "Random":
+        m = random.choice(all_maps().keys())
     turns_per_second = float(request.form.get("tps", 2))
     smoothing_enabled = request.form.get("render") == "smooth"
     games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
