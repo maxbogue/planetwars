@@ -137,3 +137,58 @@ function drawGame(ctx, planets, fleets) {
         drawFleet(ctx, fleets[i]);
     }
 }
+
+function PlanetWars(ctx, tps) {
+    this.ctx = ctx;
+    // turns per second
+    this.tps = tps;
+    // frames per turn
+    this.fpt = Math.ceil(FPS / tps);
+    // turns per frame
+    this.tpf = 1.0 / this.fpt;
+    // frames per second (real)
+    this.fps = this.fpt * tps;
+    // milliseconds per frame
+    this.mspf = 1000 / this.fps;
+    this.planets = [];
+    this.fleets = [];
+    this.queue = [];
+    this.interpolatedFrames = 0;
+    this.nextFrameAt = 0;
+    this.interpolate = true;
+}
+
+PlanetWars.prototype.addData = function(data) {
+    this.queue.push(data);
+    if (!this.nextFrameAt && this.queue.length / this.tps > 1.0) {
+        this.nextFrameAt = Date.now();
+        this.renderFrame();
+    }
+}
+
+PlanetWars.prototype.renderFrame = function() {
+    console.log(this.queue.length);
+    if (this.interpolatedFrames % this.fpt == 0) {
+        var data = this.queue.shift();
+        this.planets = data[0];
+        this.fleets = data[1];
+    } else if (this.interpolate) {
+        for (var i = 0; i < this.planets.length; i++) {
+            if (this.planets[i].owner > 0) {
+                this.planets[i].ships += this.planets[i].growth * this.tpf;
+            }
+        }
+        for (var i = 0; i < this.fleets.length; i++) {
+            this.fleets[i].remaining_turns -= this.tpf;
+        }
+    }
+    this.interpolatedFrames++;
+    drawGame(this.ctx, this.planets, this.fleets);
+    if (this.queue.length > 0) {
+        this.nextFrameAt += this.mspf;
+        var that = this;
+        setTimeout(function() {
+            that.renderFrame();
+        }, this.nextFrameAt - Date.now());
+    }
+}

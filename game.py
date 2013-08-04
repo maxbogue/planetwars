@@ -16,6 +16,7 @@ class PlanetWars:
         self.players = [neutral_player] + players
         self.planets, self.fleets = load_map("maps/" + map_name + ".txt")
         self.views = []
+        self.turns_per_second = turns_per_second
         self.turn_duration = 1.0 / turns_per_second
         self.turn = 0
 
@@ -28,6 +29,8 @@ class PlanetWars:
         return planets, fleets
 
     def play(self):
+        for view in self.views:
+            view.initialize(self.turns_per_second, self.planets)
         next_turn = time.time() + self.turn_duration
         while True:
             # Do the turn

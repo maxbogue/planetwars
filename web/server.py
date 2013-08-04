@@ -27,7 +27,7 @@ class GamesNamespace(BaseNamespace):
 
     def on_join(self, game):
         self.game = game
-        GamesNamespace.games[self.game].sockets[id(self)] = self
+        GamesNamespace.games[self.game].client_join(self)
 
     def disconnect(self, *args, **kwargs):
         if hasattr(self, "game") and self.game in GamesNamespace.games:
@@ -36,12 +36,8 @@ class GamesNamespace(BaseNamespace):
 
     @classmethod
     def emit_to_game(self, game, event, *args):
-        pkt = dict(type="event",
-                   name=event,
-                   args=args,
-                   endpoint="/game")
         for ns in self.games[game].sockets.itervalues():
-            ns.socket.send_packet(pkt)
+            ns.emit(event, *args)
 
 class WebsocketView:
 
@@ -49,6 +45,17 @@ class WebsocketView:
         self.game = game
         self.sockets = {}
         GamesNamespace.games[game] = self
+
+    def client_join(self, client):
+        self.sockets[id(client)] = client
+        client.emit("initialize", json.dumps({
+            'turns_per_second': self.turns_per_second,
+            'planets': self.planets,
+        }))
+
+    def initialize(self, turns_per_second, planets):
+        self.turns_per_second = turns_per_second
+        self.planets = [p.freeze()._asdict() for p in planets]
 
     def update(self, planets, fleets):
         asdicts = [p._asdict() for p in planets], [f._asdict() for f in fleets]
@@ -81,11 +88,8 @@ def create_game():
     if m == "Random":
         m = random.choice(all_maps().keys())
     turns_per_second = float(request.form.get("tps", 2))
-    smoothing_enabled = request.form.get("render") == "smooth"
     games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
     view = WebsocketView(game_id)
-    if smoothing_enabled:
-        view = RealtimeView(30.0, turns_per_second, view)
     games[game_id].add_view(view)
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)

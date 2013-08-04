@@ -20,14 +20,16 @@
             var socket = io.connect("/game");
             var canvas = document.getElementById("game");
             var ctx = canvas.getContext("2d");
-            socket.emit("join", gameID);
+            socket.on("initialize", function(msg) {
+                var data = JSON.parse(msg);
+                game = new PlanetWars(ctx, data.turns_per_second);
+            });
             socket.on("update", function(msg) {
                 var data = JSON.parse(msg);
-                var planets = data[0];
-                var fleets = data[1];
-                if (!planetLocs) makePlanetLocs(ctx, planets);
-                drawGame(ctx, planets, fleets);
+                if (!planetLocs) makePlanetLocs(ctx, data[0]);
+                game.addData(data);
             });
+            socket.emit("join", gameID);
         }
     </script>
 </head>
