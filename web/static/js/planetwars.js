@@ -1,9 +1,4 @@
-
 var FPS = 30;
-var SPF = 1 / FPS;
-
-// In pixels per second.
-var FLEET_SPEED = 100;
 
 var PLAYER_COLORS = [
     ["#CCCCCC", "#666666"],
@@ -21,6 +16,22 @@ function dist(p1, p2) {
     var dx = p2.x - p1.x;
     var dy = p2.y - p1.y;
     return Math.sqrt(dx * dx + dy * dy);
+}
+
+function planetRadius(ctx, planet) {
+    return Math.ceil((14 + planet.growth * 4) * (ctx.canvas.width / 800));
+}
+
+function fleetRadius(ctx, fleet) {
+    return Math.ceil((10 + fleet.ships * 0.25) * (ctx.canvas.width / 800));
+}
+
+function planetFontSize(ctx, planet) {
+    return Math.ceil((14 + planet.growth * 3) * (ctx.canvas.width / 800));
+}
+
+function fleetFontSize(ctx, fleet) {
+    return Math.ceil((8 + fleet.ships * 0.1) * (ctx.canvas.width / 800));
 }
 
 function makePlanetLocs(ctx, planets) {
@@ -44,7 +55,7 @@ function makePlanetLocs(ctx, planets) {
     top -= yRange * paddingFactor;
     bottom += yRange * paddingFactor;
     var width = ctx.canvas.width;
-    var height = width * yRange / xRange;
+    var height = Math.floor(width * yRange / xRange);
     ctx.canvas.height = height;
     for (var i = 0; i < planets.length; i++) {
         var p = planets[i];
@@ -54,7 +65,7 @@ function makePlanetLocs(ctx, planets) {
             "x": x,
             "y": y,
             "growth": p.growth,
-            "radius": 14 + p.growth * 4,
+            "radius": planetRadius(ctx, p),
         });
     }
 }
@@ -85,12 +96,11 @@ function drawPlanet(ctx, planet) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = PLAYER_COLORS[planet.owner][1];
     ctx.stroke();
-    var fontSize = 14 + planet.growth * 3;
-    ctx.font = fontSize + "px Helvetica";
+    ctx.font = planetFontSize(ctx, planet) + "px Helvetica";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
-    ctx.fillText(planet.ships, p.x, p.y);
+    ctx.fillText(Math.floor(planet.ships), p.x, p.y);
 }
 
 function drawFleet(ctx, fleet) {
@@ -101,7 +111,7 @@ function drawFleet(ctx, fleet) {
     var theta = Math.atan2(destination.y - source.y, destination.x - source.x);
     var x = source.x + Math.cos(theta) * traveled;
     var y = source.y + Math.sin(theta) * traveled;
-    var r = 10 + fleet.ships * 0.25;
+    var r = fleetRadius(ctx, fleet);
     if (r > 30) r = 30;
     drawTriangle(ctx, x, y, r, theta);
     ctx.fillStyle = "#000000";
@@ -109,14 +119,13 @@ function drawFleet(ctx, fleet) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = PLAYER_COLORS[fleet.owner][0];
     ctx.stroke();
-    var fontSize = 8 + fleet.ships * 0.1;
-    ctx.font = fontSize + "px Helvetica";
+    ctx.font = fleetFontSize(ctx, fleet) + "px Helvetica";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#FFFFFF";
     var fx = x + 0.1 * r * Math.cos(theta),
         fy = y + 0.1 * r * Math.sin(theta);
-    ctx.fillText(fleet.ships, fx, fy);
+    ctx.fillText(Math.floor(fleet.ships), fx, fy);
 }
 
 function drawGame(ctx, planets, fleets) {
