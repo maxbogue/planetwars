@@ -12,8 +12,7 @@ from threading import Thread
 from werkzeug.serving import run_with_reloader
 
 from planetwars import PlanetWars
-from planetwars.ai import ai_dict
-from planetwars.internal import all_maps, natural_key
+from planetwars.internal import natural_key
 from planetwars.views import RealtimeView
 
 app = Flask(__name__)
@@ -51,11 +50,15 @@ class WebsocketView:
         client.emit("initialize", json.dumps({
             'turns_per_second': self.turns_per_second,
             'planets': self.planets,
+            'map': self.map_name,
+            'players': self.players,
         }))
 
-    def initialize(self, turns_per_second, planets):
+    def initialize(self, turns_per_second, planets, map_name, players):
         self.turns_per_second = turns_per_second
         self.planets = [p.freeze()._asdict() for p in planets]
+        self.map_name = map_name
+        self.players = players
 
     def update(self, planets, fleets):
         asdicts = [p._asdict() for p in planets], [f._asdict() for f in fleets]
@@ -69,8 +72,8 @@ class WebsocketView:
 @app.route('/')
 def index():
     return render_template('index.html',
-            ai_names=sorted(ai_dict.keys(), key=natural_key),
-            map_names=sorted(all_maps().keys(), key=natural_key))
+            ai_names=sorted(PlanetWars.ais.keys(), key=natural_key),
+            map_names=sorted(PlanetWars.maps.keys(), key=natural_key))
 
 @app.route('/game/<path:game_id>')
 def game(game_id):
@@ -82,11 +85,11 @@ def game(game_id):
 @app.route('/create-game', methods=['POST'])
 def create_game():
     game_id = "".join(choice(string.lowercase) for _ in range(5))
-    p1 = ai_dict[request.form["p1"]]
-    p2 = ai_dict[request.form["p2"]]
+    p1 = request.form["p1"]
+    p2 = request.form["p2"]
     m = request.form.get("map", "Random")
     if m == "Random":
-        m = random.choice(all_maps().keys())
+        m = random.choice(PlanetWars.maps.keys())
     turns_per_second = float(request.form.get("tps", 2))
     games[game_id] = PlanetWars([p1, p2], m, turns_per_second)
     view = WebsocketView(game_id)

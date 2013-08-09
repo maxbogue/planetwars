@@ -2,10 +2,9 @@
 
 import os.path
 import re
-from collections import OrderedDict
 
 import planetwars
-from planetwars import Fleet, Planet
+from planetwars.datatypes import ImmutableFleet, ImmutablePlanet
 
 MAP_DIR = os.path.join(os.path.dirname(planetwars.__file__), "maps")
 
@@ -24,7 +23,7 @@ def load_map(map_file):
                 owner = int(tokens[3])
                 ships = int(tokens[4])
                 growth = int(tokens[5])
-                planets.append(Planet(len(planets), x, y, owner, ships, growth))
+                planets.append(ImmutablePlanet(len(planets), x, y, owner, ships, growth))
             elif tokens[0] == "F":
                 owner = int(tokens[1])
                 ships = int(tokens[2])
@@ -32,12 +31,12 @@ def load_map(map_file):
                 destination = int(tokens[4])
                 total_turns = int(tokens[5])
                 remaining_turns = int(tokens[6])
-                fleets.append(Fleet(owner, ships, source, destination,
+                fleets.append(ImmutableFleet(owner, ships, source, destination,
                                     total_turns, remaining_turns))
     return planets, fleets
 
-def all_maps():
-    maps = OrderedDict()
+def load_all_maps():
+    maps = {}
     for dirpath, _, filenames in os.walk(MAP_DIR):
         for filename in filenames:
             map_path = os.path.join(dirpath, filename)

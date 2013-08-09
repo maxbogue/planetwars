@@ -2,19 +2,26 @@ import time
 from collections import defaultdict
 
 from planetwars import Fleet, Planet
-from planetwars.internal import load_map
+from planetwars.internal import load_all_maps
 from planetwars.utils import count_ships, partition
 
-def neutral_player(turn, pid, planets, fleets):
+def _neutral_player(turn, pid, planets, fleets):
     return []
 
 class PlanetWars:
 
+    ais = {}
+    maps = load_all_maps()
+
     def __init__(self, players, map_name, turns_per_second=2):
         if len(players) < 2:
             raise Exception("A game requires at least two players.")
-        self.players = [neutral_player] + players
-        self.planets, self.fleets = load_map("maps/" + map_name + ".txt")
+        self.player_names = players
+        self.players = [_neutral_player] + [PlanetWars.ais[player] for player in players]
+        self.map_name = map_name
+        planets, fleets = PlanetWars.maps[map_name]
+        self.planets = [Planet(*planet) for planet in planets]
+        self.fleets = [Fleet(*fleet) for fleet in fleets]
         self.views = []
         self.turns_per_second = turns_per_second
         self.turn_duration = 1.0 / turns_per_second

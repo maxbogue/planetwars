@@ -1,8 +1,8 @@
-ai_dict = {}
+from planetwars import PlanetWars
 
 def planetwars_ai(name):
     def planetwars_ai_decorator(f):
-        ai_dict[name] = f
+        PlanetWars.ais[name] = f
         return f
     return planetwars_ai_decorator
 
