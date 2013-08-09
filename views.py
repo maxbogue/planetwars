@@ -38,6 +38,10 @@ class TextView():
             else:
                 print("  ..in %d: -%d" % (r, enemies_sum))
 
+    def initialize(self, turns_per_second, planets, map_name, players):
+        print("%s on %s" % (" vs ".join(players), map_name))
+        print("Running at %d turns per second" % turns_per_second)
+
     def update(self, planets, fleets):
         if not self.old_planets:
             self.old_planets = planets
@@ -96,6 +100,11 @@ class RealtimeView:
         for fleet in self.fleets:
             fleet.remaining_turns -= self.turns_per_frame
         self.fleets = [fleet for fleet in self.fleets if fleet.remaining_turns >= 0]
+
+    def initialize(self, *args, **kwargs):
+        with self.lock:
+            for view in self.wrapped_views:
+                view.initialize(*args, **kwargs)
 
     def update(self, planets, fleets):
         with self.lock:
