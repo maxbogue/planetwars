@@ -29,10 +29,18 @@ class PlanetWars:
         return planets, fleets
 
     def play(self):
+        planets, fleets = self.freeze()
         for view in self.views:
-            view.initialize(self.turns_per_second, self.planets)
+            view.initialize(self.turns_per_second, self.planets, self.map_name, self.player_names)
+            view.update(planets, fleets)
         next_turn = time.time() + self.turn_duration
-        while True:
+        winner = -1
+        while winner < 0:
+            # Wait until time has passed
+            now = time.time()
+            if now < next_turn:
+                time.sleep(next_turn - now)
+            next_turn += self.turn_duration
             # Do the turn
             self.do_turn()
             # Update views
@@ -41,13 +49,6 @@ class PlanetWars:
                 view.update(planets, fleets)
             # Check for end game.
             winner, ship_counts = self.gameover()
-            if winner >= 0:
-                break
-            # Wait until time has passed
-            now = time.time()
-            if now < next_turn:
-                time.sleep(next_turn - now)
-            next_turn += self.turn_duration
         for view in self.views:
             view.game_over(winner, ship_counts)
 
