@@ -48,10 +48,10 @@ class WebsocketView:
     def client_join(self, client):
         self.sockets[id(client)] = client
         client.emit("initialize", json.dumps({
-            'turnsPerSecond': self.turns_per_second,
-            'planets': self.planets,
-            'map': self.map_name,
-            'players': self.players,
+            "turnsPerSecond": self.turns_per_second,
+            "planets": self.planets,
+            "map": self.map_name,
+            "players": self.players,
         }))
 
     def initialize(self, turns_per_second, planets, map_name, players):
@@ -73,20 +73,20 @@ class WebsocketView:
         if self.game in games:
             del games[self.game]
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html',
+    return render_template("index.html",
             ai_names=sorted(PlanetWars.ais.keys(), key=natural_key),
             map_names=sorted(PlanetWars.maps.keys(), key=natural_key))
 
-@app.route('/game/<path:game_id>')
+@app.route("/game/<path:game_id>")
 def game(game_id):
     if game_id in games:
-        return render_template('game.html', gameID=game_id)
+        return render_template("game.html", gameID=game_id)
     else:
-        return redirect('/')
+        return redirect("/")
 
-@app.route('/create-game', methods=['POST'])
+@app.route("/create-game", methods=["POST"])
 def create_game():
     game_id = "".join(choice(string.lowercase) for _ in range(5))
     p1 = request.form["p1"]
@@ -101,10 +101,10 @@ def create_game():
     Thread(target=games[game_id].play).start()
     return redirect("/game/" + game_id)
 
-@app.route('/socket.io/<path:rest>')
+@app.route("/socket.io/<path:rest>")
 def push_stream(rest):
     try:
-        socketio_manage(request.environ, {'/game': GamesNamespace}, request)
+        socketio_manage(request.environ, {"/game": GamesNamespace}, request)
     except:
         app.logger.error("Exception while handling socketio connection",
                          exc_info=True)
@@ -114,7 +114,7 @@ def push_stream(rest):
 def run_dev_server():
     app.debug = True
     port = 4200
-    SocketIOServer(('', port), app, resource="socket.io").serve_forever()
+    SocketIOServer(("", port), app, resource="socket.io").serve_forever()
 
 if __name__ == "__main__":
     run_dev_server()
