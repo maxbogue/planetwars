@@ -48,7 +48,7 @@ class WebsocketView:
     def client_join(self, client):
         self.sockets[id(client)] = client
         client.emit("initialize", json.dumps({
-            'turns_per_second': self.turns_per_second,
+            'turnsPerSecond': self.turns_per_second,
             'planets': self.planets,
             'map': self.map_name,
             'players': self.players,
@@ -62,9 +62,13 @@ class WebsocketView:
 
     def update(self, planets, fleets):
         asdicts = [p._asdict() for p in planets], [f._asdict() for f in fleets]
-        GamesNamespace.emit_to_game(self.game, 'update', json.dumps(asdicts))
+        GamesNamespace.emit_to_game(self.game, "update", json.dumps(asdicts))
 
     def game_over(self, winner, ship_counts):
+        GamesNamespace.emit_to_game(self.game, "gameOver", json.dumps({
+            "winner": winner,
+            "shipCounts": ship_counts,
+        }))
         del GamesNamespace.games[self.game]
         if self.game in games:
             del games[self.game]

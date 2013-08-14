@@ -44,7 +44,7 @@
             var ctx = canvas.getContext("2d");
             socket.on("initialize", function(msg) {
                 var data = JSON.parse(msg);
-                game = new PlanetWars(ctx, data.turns_per_second);
+                planetwars = new PlanetWars(ctx, data.planets, data.turnsPerSecond);
                 for (var i = 1; i <= data.players.length; i++) {
                     var p = document.getElementById("p" + i);
                     p.textContent = data.players[i - 1];
@@ -55,8 +55,10 @@
             });
             socket.on("update", function(msg) {
                 var data = JSON.parse(msg);
-                if (!planetLocs) makePlanetLocs(ctx, data[0]);
-                game.addData(data);
+                planetwars.addData(data);
+            });
+            socket.on("gameOver", function(msg) {
+                planetwars.gameOver = true;
             });
             socket.emit("join", gameID);
         }

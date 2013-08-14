@@ -10,7 +10,21 @@ var PLAYER_COLORS = [
     ["#CC00FF", "#9900BF"],
 ];
 
-var planetLocs = null;
+function extend(dest, source) {
+    for (var k in source) {
+        if (source.hasOwnProperty(k)) {
+            var value = source[k];
+            if (dest.hasOwnProperty(k) &&
+                    typeof dest[k] === "object" &&
+                    typeof value === "object") {
+                extend(dest[k], value);
+            } else {
+                dest[k] = value;
+            }
+        }
+    }
+    return dest;
+}
 
 function dist(p1, p2) {
     var dx = p2.x - p1.x;
@@ -34,8 +48,8 @@ function fleetFontSize(ctx, fleet) {
     return Math.ceil((8 + fleet.ships * 0.1) * (ctx.canvas.width / 800));
 }
 
-function makePlanetLocs(ctx, planets) {
-    planetLocs = [];
+function makePlanetCanvasLocations(ctx, planets) {
+    var planetCanvasLocations = [];
     var top = Infinity,
         left = Infinity,
         right = -Infinity,
@@ -61,13 +75,14 @@ function makePlanetLocs(ctx, planets) {
         var p = planets[i];
         var x = Math.floor((p.x - left) / (right - left) * width);
         var y = height - Math.floor((p.y - top) / (bottom - top) * height);
-        planetLocs.push({
+        planetCanvasLocations.push({
             "x": x,
             "y": y,
             "growth": p.growth,
             "radius": planetRadius(ctx, p),
         });
     }
+    return planetCanvasLocations;
 }
 
 function drawTriangle(ctx, x, y, r, theta) {
@@ -87,9 +102,8 @@ function drawTriangle(ctx, x, y, r, theta) {
 }
 
 function drawPlanet(ctx, planet) {
-    var p = planetLocs[planet.id];
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
+    ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fillStyle = PLAYER_COLORS[planet.owner][0];
     ctx.fill();
@@ -100,12 +114,12 @@ function drawPlanet(ctx, planet) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
-    ctx.fillText(Math.floor(planet.ships), p.x, p.y);
+    ctx.fillText(Math.floor(planet.ships), planet.x, planet.y);
 }
 
 function drawFleet(ctx, fleet) {
-    var source = planetLocs[fleet.source];
-    var destination = planetLocs[fleet.destination];
+    var source = fleet.source;
+    var destination = fleet.destination;
     var d = dist(source, destination) - source.radius - destination.radius;
     var traveled = source.radius + d * (1 - (fleet.remaining_turns) / (fleet.total_turns - 1));
     var theta = Math.atan2(destination.y - source.y, destination.x - source.x);
@@ -138,7 +152,7 @@ function drawGame(ctx, planets, fleets) {
     }
 }
 
-function PlanetWars(ctx, tps) {
+function PlanetWars(ctx, planets, tps) {
     this.ctx = ctx;
     // turns per second
     this.tps = tps;
@@ -150,15 +164,26 @@ function PlanetWars(ctx, tps) {
     this.fps = this.fpt * tps;
     // milliseconds per frame
     this.mspf = 1000 / this.fps;
+    this.planetCanvasLocations = makePlanetCanvasLocations(ctx, planets);
     this.planets = [];
     this.fleets = [];
     this.queue = [];
     this.interpolatedFrames = 0;
     this.nextFrameAt = 0;
     this.interpolate = true;
+    this.gameOver = false;
 }
 
 PlanetWars.prototype.addData = function(data) {
+    var planets = data[0];
+    var fleets = data[1];
+    for (var i = 0; i < planets.length; i++) {
+        planets[i] = extend(planets[i], this.planetCanvasLocations[i]);
+    }
+    for (var i = 0; i < fleets.length; i++) {
+        fleets[i].source = planets[fleets[i].source];
+        fleets[i].destination = planets[fleets[i].destination];
+    }
     this.queue.push(data);
     if (!this.nextFrameAt && this.queue.length / this.tps > 1.0) {
         this.nextFrameAt = Date.now();
@@ -167,11 +192,15 @@ PlanetWars.prototype.addData = function(data) {
 }
 
 PlanetWars.prototype.renderFrame = function() {
-    console.log(this.queue.length);
     if (this.interpolatedFrames % this.fpt == 0) {
-        var data = this.queue.shift();
-        this.planets = data[0];
-        this.fleets = data[1];
+        if (this.queue.length > 0) {
+            var data = this.queue.shift();
+            this.planets = data[0];
+            this.fleets = data[1];
+        } else {
+            this.nextFrameAt = 0; // rebuffer
+            return;
+        }
     } else if (this.interpolate) {
         for (var i = 0; i < this.planets.length; i++) {
             if (this.planets[i].owner > 0) {
@@ -182,13 +211,15 @@ PlanetWars.prototype.renderFrame = function() {
             this.fleets[i].remaining_turns -= this.tpf;
         }
     }
-    this.interpolatedFrames++;
     drawGame(this.ctx, this.planets, this.fleets);
-    if (this.queue.length > 0) {
-        this.nextFrameAt += this.mspf;
-        var that = this;
-        setTimeout(function() {
-            that.renderFrame();
-        }, this.nextFrameAt - Date.now());
+    // If the game is over and we've exhausted the queue, stop.
+    if (this.queue.length == 0 && this.gameOver) {
+        return;
     }
+    this.interpolatedFrames++;
+    this.nextFrameAt += this.mspf;
+    var that = this;
+    setTimeout(function() {
+        that.renderFrame();
+    }, this.nextFrameAt - Date.now());
 }
