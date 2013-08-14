@@ -48,8 +48,8 @@ function fleetFontSize(ctx, fleet) {
     return Math.ceil((8 + fleet.ships * 0.1) * (ctx.canvas.width / 800));
 }
 
-function makePlanetCanvasLocations(ctx, planets) {
-    var planetCanvasLocations = [];
+function makeStaticPlanetData(ctx, planets) {
+    var staticPlanetData = [];
     var top = Infinity,
         left = Infinity,
         right = -Infinity,
@@ -75,14 +75,14 @@ function makePlanetCanvasLocations(ctx, planets) {
         var p = planets[i];
         var x = Math.floor((p.x - left) / (right - left) * width);
         var y = height - Math.floor((p.y - top) / (bottom - top) * height);
-        planetCanvasLocations.push({
+        staticPlanetData.push({
             "x": x,
             "y": y,
             "growth": p.growth,
             "radius": planetRadius(ctx, p),
         });
     }
-    return planetCanvasLocations;
+    return staticPlanetData;
 }
 
 function drawTriangle(ctx, x, y, r, theta) {
@@ -152,23 +152,19 @@ function drawGame(ctx, planets, fleets) {
     }
 }
 
-function PlanetWars(ctx, planets, tps) {
+function PlanetWars(ctx, planets, turnsPerSecond) {
     this.ctx = ctx;
-    // turns per second
-    this.tps = tps;
-    // frames per turn
-    this.fpt = Math.ceil(FPS / tps);
-    // turns per frame
-    this.tpf = 1.0 / this.fpt;
-    // frames per second (real)
-    this.fps = this.fpt * tps;
-    // milliseconds per frame
-    this.mspf = 1000 / this.fps;
-    this.planetCanvasLocations = makePlanetCanvasLocations(ctx, planets);
+    this.turnsPerSecond = turnsPerSecond;
+    this.framesPerTurn = Math.ceil(framesPerSecond / turnsPerSecond);
+    this.turnsPerFrame = 1.0 / this.framesPerTurn;
+    // Real FPS must be a multiple of turnsPerSecond.
+    this.framesPerSecond = this.framesPerTurn * turnsPerSecond;
+    this.millisecondsPerFrame = 1000 / this.framesPerSecond;
+    this.staticPlanetData = makeStaticPlanetData(ctx, planets);
     this.planets = [];
     this.fleets = [];
     this.queue = [];
-    this.interpolatedFrames = 0;
+    this.frameCount = 0;
     this.nextFrameAt = 0;
     this.interpolate = true;
     this.gameOver = false;
@@ -178,21 +174,21 @@ PlanetWars.prototype.addData = function(data) {
     var planets = data[0];
     var fleets = data[1];
     for (var i = 0; i < planets.length; i++) {
-        planets[i] = extend(planets[i], this.planetCanvasLocations[i]);
+        planets[i] = extend(planets[i], this.staticPlanetData[i]);
     }
     for (var i = 0; i < fleets.length; i++) {
         fleets[i].source = planets[fleets[i].source];
         fleets[i].destination = planets[fleets[i].destination];
     }
     this.queue.push(data);
-    if (!this.nextFrameAt && this.queue.length / this.tps > 1.0) {
+    if (!this.nextFrameAt && this.queue.length / this.turnsPerSecond > 1.0) {
         this.nextFrameAt = Date.now();
         this.renderFrame();
     }
 }
 
 PlanetWars.prototype.renderFrame = function() {
-    if (this.interpolatedFrames % this.fpt == 0) {
+    if (this.frameCount % this.framesPerTurn == 0) {
         if (this.queue.length > 0) {
             var data = this.queue.shift();
             this.planets = data[0];
@@ -204,11 +200,11 @@ PlanetWars.prototype.renderFrame = function() {
     } else if (this.interpolate) {
         for (var i = 0; i < this.planets.length; i++) {
             if (this.planets[i].owner > 0) {
-                this.planets[i].ships += this.planets[i].growth * this.tpf;
+                this.planets[i].ships += this.planets[i].growth * this.turnsPerFrame;
             }
         }
         for (var i = 0; i < this.fleets.length; i++) {
-            this.fleets[i].remaining_turns -= this.tpf;
+            this.fleets[i].remaining_turns -= this.turnsPerFrame;
         }
     }
     drawGame(this.ctx, this.planets, this.fleets);
@@ -216,8 +212,8 @@ PlanetWars.prototype.renderFrame = function() {
     if (this.queue.length == 0 && this.gameOver) {
         return;
     }
-    this.interpolatedFrames++;
-    this.nextFrameAt += this.mspf;
+    this.frameCount++;
+    this.nextFrameAt += this.millisecondsPerFrame;
     var that = this;
     setTimeout(function() {
         that.renderFrame();
