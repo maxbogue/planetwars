@@ -155,7 +155,7 @@ function drawGame(ctx, planets, fleets) {
 function PlanetWars(ctx, planets, turnsPerSecond) {
     this.ctx = ctx;
     this.turnsPerSecond = turnsPerSecond;
-    this.framesPerTurn = Math.ceil(framesPerSecond / turnsPerSecond);
+    this.framesPerTurn = Math.ceil(FPS / turnsPerSecond);
     this.turnsPerFrame = 1.0 / this.framesPerTurn;
     // Real FPS must be a multiple of turnsPerSecond.
     this.framesPerSecond = this.framesPerTurn * turnsPerSecond;
