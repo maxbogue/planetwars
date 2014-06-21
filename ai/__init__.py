@@ -7,3 +7,8 @@ def planetwars_ai(name):
     return planetwars_ai_decorator
 
 import planetwars.ai.simple
+
+try:
+    import planetwars.ai.elnaril
+except SyntaxError:
+    pass

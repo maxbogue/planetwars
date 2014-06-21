@@ -5,8 +5,9 @@ from planetwars import Fleet, Planet
 from planetwars.internal import load_all_maps
 from planetwars.utils import count_ships, partition
 
-def _neutral_player(turn, pid, planets, fleets):
-    return []
+class NeutralPlayer:
+    def play(self, turn, pid, planets, fleets):
+        return []
 
 class PlanetWars:
 
@@ -17,7 +18,7 @@ class PlanetWars:
         if len(players) < 2:
             raise Exception("A game requires at least two players.")
         self.player_names = players
-        self.players = [_neutral_player] + [PlanetWars.ais[player] for player in players]
+        self.players = [NeutralPlayer()] + [PlanetWars.ais[player]() for player in players]
         self.map_name = map_name
         planets, fleets = PlanetWars.maps[map_name]
         self.planets = [Planet(*planet) for planet in planets]
@@ -64,7 +65,7 @@ class PlanetWars:
 
         # Get orders
         planets, fleets = self.freeze()
-        player_orders = [player(self.turn, i, planets, fleets) for i, player in enumerate(self.players)]
+        player_orders = [player.play(self.turn, i, planets, fleets) for i, player in enumerate(self.players)]
         self.turn += 1
 
         # Departure
