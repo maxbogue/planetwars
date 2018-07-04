@@ -4,9 +4,8 @@ const { Fleet, Order, Planet } = require('./dataTypes');
 const { battle, countShips } = require('./utils');
 const { loadAllAIs, loadAllMaps } = require('./internal');
 
-const AIS = loadAllAIs();
-const MAPS = loadAllMaps();
-
+var AIS = loadAllAIs();
+var MAPS = loadAllMaps();
 class NeutralPlayer {
   play(turn, player, planets, fleets) {
     return [];
@@ -132,4 +131,4 @@ class PlanetWars {
   }
 }
 
-module.exports = { PlanetWars };
+module.exports = { PlanetWars, AIS, MAPS};
