@@ -15,7 +15,10 @@ const PlanetWars = require('./game');
 
 games = []
 app.get('/', function(req, res) {
-    res.render('index', {'map_names': ldKeys(PlanetWars.MAPS),'ai_names': ldKeys(PlanetWars.AIS)})
+    res.render('index', {
+        'map_names': ldKeys(PlanetWars.MAPS),
+        'ai_names': ldKeys(PlanetWars.AIS)
+    })
 })
 app.get('/game/:gameID', function(req, res) {
     if (games.includes(req.params.gameID)) {
@@ -28,10 +31,10 @@ app.get('/game/:gameID', function(req, res) {
 })
 app.use("/static", express.static('static'))
 app.post('/create-game', function(req, res) {
-    
-game_id = baseUtil.gameID()
-p1 = req.body.p1
-p2 = req.body.p2
+
+    game_id = baseUtil.gameID()
+    p1 = req.body.p1
+    p2 = req.body.p2
 
 
 })
@@ -42,13 +45,13 @@ p2 = req.body.p2
 
 
 var game_conn = io
-  .of('/game')
-  .on('connection', function (socket) {
-//console.log(socket)
-//})
-//game.on('join',function (socket){ 
-socket.emit('initialize',datatest)
-})
+    .of('/game')
+    .on('connection', function(socket) {
+        //console.log(socket)
+        //})
+        //game.on('join',function (socket){ 
+        socket.emit('initialize', datatest)
+    })
 
 
 
