@@ -34,18 +34,21 @@
             font-size: 13px;
         }
     </style>
-    <script src="/static/js/socket.io.js"></script>
-    <script src="/static/js/planetwars.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.dev.js"></script>
+    <script src="/static/planetwars.js"></script>
     <script>
         function main() {
             var gameID = "{{ gameID }}";
             var socket = io.connect("/game");
             var canvas = document.getElementById("game");
             var ctx = canvas.getContext("2d");
-            socket.on("initialize", function(msg) {
-                var data = JSON.parse(msg);
+
+            socket.on("initialize", function(messagedata) {
+		console.log(messagedata);
+                var data = messagedata
                 planetwars = new PlanetWars(ctx, data.planets, data.turnsPerSecond);
                 for (var i = 1; i <= data.players.length; i++) {
+		console.log("p" + i);
                     var p = document.getElementById("p" + i);
                     p.textContent = data.players[i - 1];
                     p.style.color = PLAYER_COLORS[i][0];
@@ -54,8 +57,9 @@
                 document.getElementById("info").style.display = "block";
             });
             socket.on("update", function(msg) {
-                var data = JSON.parse(msg);
+                var data = JSON.parse(msg.body);
                 planetwars.addData(data);
+console.log(msg)
             });
             socket.on("gameOver", function(msg) {
                 planetwars.gameOver = true;
