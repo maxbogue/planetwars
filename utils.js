@@ -1,4 +1,4 @@
-const sortBy = require('lodash/sortBy');
+const _ = require('lodash');
 
 function euclideanDist(x, y) {
   return Math.sqrt(x * x + y * y);
@@ -29,8 +29,8 @@ function countShips(planets, fleets) {
       shipCounts[fleet.owner] += fleet.ships;
     }
   }
-  let countPairs = shipCounts.map((c, i) => [i, c]).filter(([p, c]) => c > 0);
-  return sortBy(countPairs, ([p, c]) => -c);
+  let countPairs = shipCounts.map((c, i) => [i, c]).filter(([, c]) => c > 0);
+  return _.sortBy(countPairs, ([, c]) => -c);
 }
 
 function battle(planet, fleets) {

@@ -4,7 +4,16 @@
   "description": "",
   "main": "play.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./bin/lint; exit 0;",
+    "lint-all": "./bin/lint all; exit 0;",
+    "lint-precommit": "./bin/lint staged"
+  },
+  "precommit": {
+    "run": [
+      "lint-precommit"
+    ],
+    "silent": true
   },
   "repository": {
     "type": "git",
@@ -18,5 +27,9 @@
   "homepage": "https://github.com/maxbogue/planetwars#readme",
   "dependencies": {
     "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "eslint": "^5.0.1",
+    "pre-commit": "^1.2.2"
   }
 }

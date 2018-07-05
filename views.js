@@ -1,3 +1,5 @@
+/* eslint no-console: "off" */
+
 const _ = require('lodash');
 
 const { getShips } = require('./utils');

@@ -34,7 +34,7 @@ function loadMap(mapPath) {
       let totalTurns = parseInt(tokens[5]);
       let remainingTurns = parseInt(tokens[6]);
       fleets.push(new Fleet(
-            owner, ships, growth, destination, totalTurns, remainingTurns));
+        owner, ships, source, destination, totalTurns, remainingTurns));
     }
   }
   return [planets, fleets];
