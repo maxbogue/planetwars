@@ -4,7 +4,16 @@
   "description": "planet wars but modern",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "./bin/lint; exit 0;",
+    "lint-all": "./bin/lint all; exit 0;",
+    "lint-precommit": "./bin/lint staged"
+  },
+  "precommit": {
+    "run": [
+      "lint-precommit"
+    ],
+    "silent": true
   },
   "author": "",
   "license": "ISC",
@@ -17,5 +26,9 @@
     "nunjs": "0.0.3",
     "socket.io": "^2.1.1",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.0.1",
+    "pre-commit": "^1.2.2"
   }
 }

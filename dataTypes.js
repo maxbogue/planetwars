@@ -40,6 +40,17 @@ class Fleet {
   hasArrived() {
     return this.remainingTurns <= 0;
   }
+
+  forJson() {
+    return {
+      owner: this.owner,
+      ships: this.ships,
+      source: this.source.id,
+      destination: this.destination.id,
+      totalTurns: this.totalTurns,
+      remainingTurns: this.remainingTurns,
+    };
+  }
 }
 
 class Order {
