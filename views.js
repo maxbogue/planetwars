@@ -4,7 +4,6 @@ class TextView {
     this.oldPlanets = null;
   }
 
-  /*
   printPlanet(planet, fleets) {
     let mine = (fleet) => fleet.owner === planet.owner;
     fleets = fleets.filter((fleet) => fleet.destination === planet.id);
@@ -18,14 +17,13 @@ class TextView {
     }
     console.log("#%02d: %s %s", planet.id, owner, ships);
   }
-  */
 
   initialize(turnsPerSecond, planets, mapName, players) {
-    //console.log(turnsPerSecond, planets, mapName, players);
+    console.log(turnsPerSecond, planets, mapName, players);
   }
 
   update(planets, fleets) {
-    //console.log('update', planets, fleets);
+    console.log('update', planets, fleets);
   }
 
   gameOver(winner, shipCounts) {
