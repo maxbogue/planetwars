@@ -26,7 +26,7 @@ class PlanetWars {
     this.fleets = cloneDeep(fleets);
     this.views = [];
     this.turnsPerSecond = turnsPerSecond;
-    this.turnDuration = 1 / turnsPerSecond;
+    this.turnDuration = 1000 / turnsPerSecond;
     this.turn = 0;
   }
 
@@ -44,20 +44,24 @@ class PlanetWars {
           this.turnsPerSecond, this.planets, this.mapName, this.playerNames);
       view.update(this.planets, this.fleets);
     }
-    let nextTurn = new Date() + this.turnDuration;
     let winner = -1;
     let shipCounts = null;
-    while (winner < 0) {
-      // wait until nextTurn
-      nextTurn += this.turnDuration;
-      this.doTurn();
-      for (let view of this.views) {
-        view.update(this.planets, this.fleets);
-      }
-      [winner, shipCounts] = this.isGameOver();
-    }
+    this.doPlay();
+  }
+
+  doPlay() {
+    let nextTurn = Date.now() + this.turnDuration;
+    this.doTurn();
     for (let view of this.views) {
-      view.gameOver(winner, shipCounts);
+      view.update(this.planets, this.fleets);
+    }
+    let [winner, shipCounts] = this.isGameOver();
+    if (winner < 0) {
+      setTimeout(() => this.doPlay(), nextTurn - Date.now());
+    } else {
+      for (let view of this.views) {
+        view.gameOver(winner, shipCounts);
+      }
     }
   }
 

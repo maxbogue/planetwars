@@ -29,7 +29,8 @@ function countShips(planets, fleets) {
       shipCounts[fleet.owner] += fleet.ships;
     }
   }
-  return sortBy(shipCounts.map((c, i) => [i, c]).filter(([p, c]) => c > 0), ([p, c]) => -c);
+  let countPairs = shipCounts.map((c, i) => [i, c]).filter(([p, c]) => c > 0);
+  return sortBy(countPairs, ([p, c]) => -c);
 }
 
 function battle(planet, fleets) {
