@@ -9,6 +9,8 @@ app.use(bodyParser())
 const baseUtil = require('./base')
 console.log(baseUtil.gameID())
 
+const {WebsocketView} = require('./socketview')
+
 server = require('http').Server(app);
 var io = require('socket.io')(server);
 const { PlanetWars, MAPS, AIS } = require('./game');
@@ -55,15 +57,12 @@ var game_conn = io
         //console.log(socket)
         //})
         //game.on('join',function (socket){ 
-    
-socket.on('join', function (data) {
- var init_data = {}
-init_data['turns_per_second'] = games[data].turnsPerSecond
-init_data['players'] = games[data].playerNames
-init_data['map'] = games[data].mapName
-init_data['planets'] = games[data].planets
-console.log(init_data)
-socket.emit('initialize', init_data)
+  socket.on('join', function (data) {
+  let view = new WebsocketView(socket);
+  games[data].addView(view)   
+  if (games[data].views.length === 1) {
+    games[data].play()
+  }
 })})
 
 

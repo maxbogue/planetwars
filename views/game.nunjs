@@ -57,8 +57,7 @@
                 document.getElementById("info").style.display = "block";
             });
             socket.on("update", function(msg) {
-                var data = JSON.parse(msg.body);
-                planetwars.addData(data);
+                planetwars.addData(msg);
 console.log(msg)
             });
             socket.on("gameOver", function(msg) {
