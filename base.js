@@ -1,6 +1,6 @@
 const uuidv1 = require('uuid/v1');
 function gameID () {
-return uuidv1();
+  return uuidv1();
 }
 function max(ls, key) {
   let pairs = ls.map((v) => [key ? key(v) : v, v]);
@@ -28,4 +28,4 @@ function randomChoice(ls) {
   return ls[Math.floor(Math.random() * ls.length)];
 }
 
-module.exports = {gameID,  max, min, randomChoice };
+module.exports = {gameID, max, min, randomChoice };

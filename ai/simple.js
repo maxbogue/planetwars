@@ -5,7 +5,7 @@ const { aggroPartition, getShips } = require('../utils');
 const { max, min, randomChoice } = require('../base');
 
 class StrongToWeak {
-  play(turn, player, planets, fleets) {
+  play(turn, player, planets) {
     let [myPlanets, theirPlanets] = aggroPartition(player, planets);
     let myStrongest = max(myPlanets, getShips);
     let theirWeakest = min(theirPlanets, getShips);
@@ -14,7 +14,7 @@ class StrongToWeak {
 }
 
 class Random {
-  play(turn, player, planets, fleets) {
+  play(turn, player, planets) {
     let mine = (thing) => thing.owner === player;
     let [myPlanets, otherPlanets] = partition(planets, mine);
     let source = randomChoice(myPlanets);
