@@ -35,7 +35,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-    <script src="/static/js/planetwars.js"></script>
+    <script src="/static/planetwars.js"></script>
     <script>
         function main() {
             var gameID = "{{ gameID }}";

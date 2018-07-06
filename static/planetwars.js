@@ -130,7 +130,7 @@ function drawFleet(ctx, fleet) {
   let destination = fleet.destination;
   let d = dist(source, destination) - source.radius - destination.radius;
   let traveled = source.radius
-    + d * (1 - fleet.remaining_turns / (fleet.total_turns - 1));
+    + d * (1 - fleet.remainingTurns / (fleet.totalTurns - 1));
   let theta = Math.atan2(destination.y - source.y, destination.x - source.x);
   let x = source.x + Math.cos(theta) * traveled;
   let y = source.y + Math.sin(theta) * traveled;
@@ -217,7 +217,7 @@ class PlanetWars {
         }
       }
       for (let i = 0; i < this.fleets.length; i++) {
-        this.fleets[i].remaining_turns -= this.turnsPerFrame;
+        this.fleets[i].remainingTurns -= this.turnsPerFrame;
       }
     }
     drawGame(this.ctx, this.planets, this.fleets);

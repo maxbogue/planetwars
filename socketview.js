@@ -12,11 +12,12 @@ class WebsocketView {
   }
 
   update(planets, fleets) {
-  this.socket.emit('update', [planets, fleets]);
+  this.socket.emit('update', [planets, fleets.map((fleet) => fleet.forJson())]);
   }
 
   gameOver(winner, shipCounts) {
     this.socket.emit('gameOver', winner, shipCounts);
+    console.log('game over - '+winner+' wins.')
   }
 }
 
