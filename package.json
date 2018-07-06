@@ -1,7 +1,7 @@
 {
-  "name": "pw_rewrite",
-  "version": "0.0.1",
-  "description": "planet wars but modern",
+  "name": "planetwars",
+  "version": "1.0.2",
+  "description": "A space-based strategy game where two AIs fight tooth and nail for control of a galaxy.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,16 +16,23 @@
     "silent": true
   },
   "author": "",
+  "contributors": [
+    {
+      "name": "Max Bogue",
+      "url": "http://maxbogue.com"
+    },
+    {
+      "name": "Lexan Smythe-Worthington",
+      "email": "lexan@4queens.tk"
+    }
+  ],
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "express-generator": "^4.16.0",
-    "js-beautify": "^1.7.5",
     "lodash": "^4.17.10",
     "nunjs": "0.0.3",
-    "socket.io": "^2.1.1",
-    "uuid": "^3.3.2"
+    "socket.io": "^2.1.1"
   },
   "devDependencies": {
     "eslint": "^5.0.1",

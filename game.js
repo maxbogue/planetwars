@@ -139,5 +139,5 @@ class PlanetWars {
   }
 }
 
-module.exports = { PlanetWars , AIS, MAPS};
+module.exports = { PlanetWars , AIS, MAPS };
 

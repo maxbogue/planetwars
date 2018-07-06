@@ -5,12 +5,13 @@ class WebsocketView {
   }
 
   initialize(turnsPerSecond, planets, mapName, players) {
-    this.socket.emit('initialize', {turnsPerSecond, planets, mapName, players});
+    this.socket.emit('initialize',
+                     { turnsPerSecond, planets, mapName, players });
   }
 
   update(planets, fleets) {
-    let fleetJson = fleets.map((fleet) => fleet.forJson());
-    this.socket.emit('update', [planets, fleetJson]);
+    let fleetsForJson = fleets.map((fleet) => fleet.forJson());
+    this.socket.emit('update', [planets, fleetsForJson]);
   }
 
   gameOver(winner, shipCounts) {
@@ -19,4 +20,3 @@ class WebsocketView {
 }
 
 module.exports = { WebsocketView };
-

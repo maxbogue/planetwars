@@ -50,9 +50,7 @@
     </style>
 </head>
 <body>
-    <h1>Planet Wars</h1>
-	<h2>REWRITTEN</h2>
-	<h3>(not working yet, under construction)</h3>
+    <h1>PlanetWars</h1>
     <form action="/create-game" method="POST">
         <table cellspacing=0>
             <tr>

@@ -9,7 +9,7 @@ class StrongToWeak {
     let [myPlanets, theirPlanets] = aggroPartition(player, planets);
     let myStrongest = max(myPlanets, getShips);
     let theirWeakest = min(theirPlanets, getShips);
-    return [new Order(myStrongest, theirWeakest, myStrongest.ships * 0.75)];
+    return [new Order(myStrongest, theirWeakest, myStrongest.ships * 0.69)];
   }
 }
 
@@ -22,5 +22,4 @@ class Random {
     return [new Order(source, dest, source.ships / 2)];
   }
 }
-
 module.exports = { Random, StrongToWeak };

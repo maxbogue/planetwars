@@ -43,24 +43,20 @@
             var canvas = document.getElementById("game");
             var ctx = canvas.getContext("2d");
 
-            socket.on("initialize", function(messagedata) {
-		console.log(messagedata);
-                var data = messagedata
+            socket.on("initialize", function(data) {
                 planetwars = new PlanetWars(ctx, data.planets, data.turnsPerSecond);
                 for (var i = 1; i <= data.players.length; i++) {
-		console.log("p" + i);
                     var p = document.getElementById("p" + i);
                     p.textContent = data.players[i - 1];
                     p.style.color = PLAYER_COLORS[i][0];
                 }
-                document.getElementById("map").textContent = data.map;
+                document.getElementById("map").textContent = data.mapName;
                 document.getElementById("info").style.display = "block";
             });
-            socket.on("update", function(msg) {
-                planetwars.addData(msg);
-console.log(msg)
+            socket.on("update", function(data) {
+                planetwars.addData(data);
             });
-            socket.on("gameOver", function(msg) {
+            socket.on("gameOver", function(data) {
                 planetwars.gameOver = true;
             });
             socket.emit("join", gameID);
