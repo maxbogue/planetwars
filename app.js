@@ -38,7 +38,7 @@ app.get('/game/:gameID', function(req, res) {
 
 // handle game creation
 app.post('/create-game', function(req, res) {
-  let game_id = baseUtil.gameID();
+  let gameID = baseUtil.gameID();
   let p1 = req.body.p1;
   let p2 = req.body.p2;
   let m = req.body.map;
@@ -46,8 +46,8 @@ app.post('/create-game', function(req, res) {
     m = baseUtil.randomChoice(_.keys(MAPS));
   }
   let turnsPerSecond = req.body.tps;
-  games[game_id] = new PlanetWars([p1, p2], m, turnsPerSecond);
-  res.redirect('/game/' + game_id);
+  games[gameID] = new PlanetWars([p1, p2], m, turnsPerSecond);
+  res.redirect('/game/' + gameID);
 });
 
 // tell those sockets what they want to hear
