@@ -1,6 +1,6 @@
 {
   "name": "planetwars",
-  "version": "1.0.2",
+  "version": "0.1.0",
   "description": "A space-based strategy game where two AIs fight tooth and nail for control of a galaxy.",
   "main": "app.js",
   "scripts": {
@@ -23,7 +23,7 @@
     },
     {
       "name": "Lexan Smythe-Worthington",
-      "email": "lexan@4queens.tk"
+      "email": "lexan.smythe@gmail.com"
     }
   ],
   "license": "ISC",

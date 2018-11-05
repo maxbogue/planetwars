@@ -1,15 +1,11 @@
-//local imports, as requested
-const baseUtil = require('./base');
-const { PlanetWars, MAPS, AIS } = require('./game');
-const { WebsocketView } = require('./socketview');
-
-//require actual packages
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 const express = require('express');
 
+const baseUtil = require('./base');
+const { PlanetWars, MAPS, AIS } = require('./game');
+const { WebsocketView } = require('./socketview');
 
-//init some stuff
 const app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'nunjs');
@@ -17,16 +13,19 @@ app.use(bodyParser());
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const games = {};
-//publish static files
+
+// publish static files
 app.use('/static', express.static('static'));
-//render game setup view
+
+// render game setup view
 app.get('/', function(req, res) {
   res.render('index', {
     'map_names': _.keys(MAPS),
     'ai_names': _.keys(AIS)
   });
 });
-//render gameplay view
+
+// render gameplay view
 app.get('/game/:gameID', function(req, res) {
   if (games[req.params.gameID]) {
     res.render('game', {
@@ -36,7 +35,8 @@ app.get('/game/:gameID', function(req, res) {
     res.redirect('/');
   }
 });
-//handle game creation
+
+// handle game creation
 app.post('/create-game', function(req, res) {
   let game_id = baseUtil.gameID();
   let p1 = req.body.p1;
@@ -49,7 +49,8 @@ app.post('/create-game', function(req, res) {
   games[game_id] = new PlanetWars([p1, p2], m, turnsPerSecond);
   res.redirect('/game/' + game_id);
 });
-//tell those sockets what they want to hear
+
+// tell those sockets what they want to hear
 io.of('/game').on('connection', function(socket) {
   socket.on('join', function (data) {
     let view = new WebsocketView(socket);
@@ -59,5 +60,5 @@ io.of('/game').on('connection', function(socket) {
     }
   });
 });
-//run the whole enchilada!
+
 server.listen(4200);

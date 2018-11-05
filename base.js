@@ -1,7 +1,6 @@
 function gameID () {
-  let digits = 'abcdef1234567890cw';
-  let id = randomChoice(digits) + randomChoice(digits) + randomChoice(digits);
-  id = id + randomChoice(digits) + randomChoice(digits);
+  let digits = 'abcdef1234567890';
+  let id = randomChoice(digits) + randomChoice(digits) + randomChoice(digits) + randomChoice(digits) + randomChoice(digits);
   return id;
 }
 function max(ls, key) {
