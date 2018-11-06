@@ -24,8 +24,8 @@ class Random {
 }
 
 
-class AllToCloseOrWeak {
 
+class AllToCloseOrWeak {
   play(turn, player, planets) {
     let currentPlanet;
     let orders = [];
@@ -40,12 +40,14 @@ class AllToCloseOrWeak {
         let closest = min(theirPlanets, distTo);
         orders.push(new Order(planet, closest, planet.ships * 0.75));
       } else {
-
         orders.push(new Order(planet, theirWeakest, planet.ships * 0.75));
-
       }
     });
 
     return orders;
   }
-}module.exports = { Random, StrongToWeak, AllToCloseOrWeak };
+}
+
+module.exports = { Random, StrongToWeak, AllToCloseOrWeak };
+
+
