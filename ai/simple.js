@@ -1,7 +1,7 @@
 const partition = require('lodash/partition');
 
 const { Order } = require('../dataTypes');
-const { aggroPartition, getShips } = require('../utils');
+const { aggroPartition, getShips, turnDist } = require('../utils');
 const { max, min, randomChoice } = require('../base');
 
 class StrongToWeak {
@@ -22,4 +22,30 @@ class Random {
     return [new Order(source, dest, source.ships / 2)];
   }
 }
-module.exports = { Random, StrongToWeak };
+
+
+class AllToCloseOrWeak {
+
+  play(turn, player, planets) {
+    let currentPlanet;
+    let orders = [];
+    let [myPlanets, theirPlanets] = aggroPartition(player, planets);
+    function distTo(otherPlanet){
+      return turnDist(currentPlanet,otherPlanet);
+    }
+    let theirWeakest = min(theirPlanets, getShips);
+    myPlanets.forEach(function(planet) {
+      currentPlanet = planet;
+      if (Math.random() > 0.5) {
+        let closest = min(theirPlanets, distTo);
+        orders.push(new Order(planet, closest, planet.ships * 0.75));
+      } else {
+
+        orders.push(new Order(planet, theirWeakest, planet.ships * 0.75));
+
+      }
+    });
+
+    return orders;
+  }
+}module.exports = { Random, StrongToWeak, AllToCloseOrWeak };
