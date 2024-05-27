@@ -26,10 +26,10 @@ app.get('/', function(req, res) {
 });
 
 // render gameplay view
-app.get('/game/:gameID', function(req, res) {
-  if (games[req.params.gameID]) {
+app.get('/game/:gameId', function(req, res) {
+  if (games[req.params.gameId]) {
     res.render('game', {
-      gameID: req.params.gameID
+      gameId: req.params.gameId
     });
   } else {
     res.redirect('/');
@@ -38,7 +38,7 @@ app.get('/game/:gameID', function(req, res) {
 
 // handle game creation
 app.post('/create-game', function(req, res) {
-  let gameID = baseUtil.gameID();
+  let gameId = baseUtil.gameId();
   let p1 = req.body.p1;
   let p2 = req.body.p2;
   let m = req.body.map;
@@ -46,8 +46,8 @@ app.post('/create-game', function(req, res) {
     m = baseUtil.randomChoice(_.keys(MAPS));
   }
   let turnsPerSecond = req.body.tps;
-  games[gameID] = new PlanetWars([p1, p2], m, turnsPerSecond);
-  res.redirect('/game/' + gameID);
+  games[gameId] = new PlanetWars([p1, p2], m, turnsPerSecond);
+  res.redirect('/game/' + gameId);
 });
 
 // tell those sockets what they want to hear
